@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Plus, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 type Todo = {
@@ -14,49 +13,31 @@ type Todo = {
   completed: boolean
 }
 
+type FilterType = "all" | "active" | "completed"
+
 export function TodoList() {
-  const [mounted, setMounted] = useState(false)
   const [todos, setTodos] = useState<Todo[]>([])
   const [newTodo, setNewTodo] = useState("")
-  const [activeFilter, setActiveFilter] = useState("all")
-  const idCounter = useRef(0)
+  const [activeFilter, setActiveFilter] = useState<FilterType>("all")
 
-  // Only run client-side code after hydration
+  // Load todos from localStorage on initial render
   useEffect(() => {
-    setMounted(true)
-    
-    // Load todos from localStorage
     const storedTodos = localStorage.getItem("todos")
     if (storedTodos) {
-      try {
-        const parsedTodos = JSON.parse(storedTodos)
-        setTodos(parsedTodos)
-        
-        // Set the idCounter to the highest ID + 1
-        const ids = parsedTodos.map((todo: Todo) => {
-          const id = parseInt(todo.id, 10);
-          return isNaN(id) ? 0 : id;
-        });
-        idCounter.current = ids.length > 0 ? Math.max(...ids) + 1 : 0;
-      } catch (e) {
-        console.error("Failed to parse todos from localStorage:", e);
-        localStorage.removeItem("todos"); // Clear invalid data
-      }
+      setTodos(JSON.parse(storedTodos))
     }
   }, [])
 
   // Save todos to localStorage whenever they change
   useEffect(() => {
-    if (mounted && todos.length > 0) {
-      localStorage.setItem("todos", JSON.stringify(todos));
-    }
-  }, [todos, mounted]);
+    localStorage.setItem("todos", JSON.stringify(todos))
+  }, [todos])
 
   const addTodo = () => {
     if (newTodo.trim() === "") return
 
     const newTodoItem: Todo = {
-      id: (idCounter.current++).toString(),
+      id: Date.now().toString(),
       text: newTodo,
       completed: false,
     }
@@ -77,6 +58,10 @@ export function TodoList() {
     setTodos(todos.filter((todo) => !todo.completed))
   }
 
+  const deleteAllTodos = () => {
+    setTodos([])
+  }
+
   const filteredTodos = todos.filter((todo) => {
     if (activeFilter === "active") return !todo.completed
     if (activeFilter === "completed") return todo.completed
@@ -85,18 +70,13 @@ export function TodoList() {
 
   const activeTodosCount = todos.filter((todo) => !todo.completed).length
 
-  // Prevent hydration issues by not rendering until client-side
-  if (!mounted) {
-    return <div className="w-full max-w-md h-96 flex items-center justify-center">Loading...</div>
-  }
-
   return (
-    <Card className="w-full max-w-md shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-2xl text-center">Todo List</CardTitle>
+    <Card className="w-full max-w-sm shadow-md">
+      <CardHeader className="pb-2 pt-3 px-3">
+        <CardTitle className="text-lg text-center">Todo List</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="flex space-x-2 mb-6">
+      <CardContent className="px-3 py-2 space-y-3">
+        <div className="flex space-x-1">
           <Input
             placeholder="What needs to be done?"
             value={newTodo}
@@ -104,37 +84,57 @@ export function TodoList() {
             onKeyDown={(e) => {
               if (e.key === "Enter") addTodo()
             }}
-            className="flex-1"
+            className="flex-1 h-8 text-sm"
           />
-          <Button onClick={addTodo} size="icon">
-            <Plus className="h-4 w-4" />
+          <Button onClick={addTodo} size="icon" className="h-8 w-8">
+            <Plus className="h-3 w-3" />
           </Button>
         </div>
 
-        <Tabs defaultValue="all" onValueChange={setActiveFilter}>
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-          </TabsList>
+        <div className="space-y-2">
+          <div className="flex border-b w-full">
+            {(["all", "active", "completed"] as const).map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`flex-1 px-3 py-1.5 text-xs font-medium capitalize transition-colors relative text-center ${
+                  activeFilter === filter ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {filter}
+                {activeFilter === filter && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
+              </button>
+            ))}
+          </div>
 
-          <TabsContent value="all" className="mt-0">
+          <div className="min-h-[100px]">
             <TodoItems todos={filteredTodos} onToggle={toggleTodo} onDelete={deleteTodo} />
-          </TabsContent>
-          <TabsContent value="active" className="mt-0">
-            <TodoItems todos={filteredTodos} onToggle={toggleTodo} onDelete={deleteTodo} />
-          </TabsContent>
-          <TabsContent value="completed" className="mt-0">
-            <TodoItems todos={filteredTodos} onToggle={toggleTodo} onDelete={deleteTodo} />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </CardContent>
 
-      <CardFooter className="flex justify-between border-t pt-4">
-        <p className="text-sm text-muted-foreground">
-          {activeTodosCount} {activeTodosCount === 1 ? "item" : "items"} left
-        </p>
-        <Button variant="outline" size="sm" onClick={clearCompleted}>
+      <CardFooter className="flex justify-between border-t pt-2 pb-2 px-3">
+        <div className="flex items-center gap-1">
+          <p className="text-xs text-muted-foreground">
+            {activeTodosCount} {activeTodosCount === 1 ? "item" : "items"} left
+          </p>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={deleteAllTodos}
+            disabled={todos.length === 0}
+            className="h-6 text-xs px-2"
+          >
+            Delete All
+          </Button>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearCompleted}
+          disabled={!todos.some((todo) => todo.completed)}
+          className="h-6 text-xs px-2"
+        >
           Clear completed
         </Button>
       </CardFooter>
@@ -150,21 +150,26 @@ interface TodoItemsProps {
 
 function TodoItems({ todos, onToggle, onDelete }: TodoItemsProps) {
   if (todos.length === 0) {
-    return <p className="text-center text-muted-foreground py-4">No todos to display</p>
+    return <p className="text-center text-muted-foreground py-2 text-xs">No todos to display</p>
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-1">
       {todos.map((todo) => (
         <li
           key={todo.id}
-          className="flex items-center justify-between p-3 border rounded-md group hover:bg-muted/50 transition-colors"
+          className="flex items-center justify-between py-1 px-2 border rounded-md group hover:bg-muted/50 transition-colors"
         >
-          <div className="flex items-center gap-3">
-            <Checkbox id={`todo-${todo.id}`} checked={todo.completed} onCheckedChange={() => onToggle(todo.id)} />
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id={`todo-${todo.id}`}
+              checked={todo.completed}
+              onCheckedChange={() => onToggle(todo.id)}
+              className="h-3.5 w-3.5"
+            />
             <label
               htmlFor={`todo-${todo.id}`}
-              className={`text-sm ${todo.completed ? "line-through text-muted-foreground" : ""}`}
+              className={`text-xs ${todo.completed ? "line-through text-muted-foreground" : ""}`}
             >
               {todo.text}
             </label>
@@ -173,9 +178,9 @@ function TodoItems({ todos, onToggle, onDelete }: TodoItemsProps) {
             variant="ghost"
             size="icon"
             onClick={() => onDelete(todo.id)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3 w-3" />
             <span className="sr-only">Delete</span>
           </Button>
         </li>
