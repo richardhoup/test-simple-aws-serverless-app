@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Node.js
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Next.js
+.next
+out
+
+# SST
+.sst
+.open-next
+
+# Amplify
+amplify/team-provider-info.json
+amplify/backend/amplify-meta.json
+amplify/backend/awscloudformation
+amplify/backend/.temp
+.amplify
+amplify_outputs.json
+
+# Build and test
+build
+coverage
+dist
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Misc
+.DS_Store
+*.pem 
