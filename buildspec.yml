@@ -17,4 +17,3 @@ artifacts:
   files:
     - '**/*'
   discard-paths: no
-i
