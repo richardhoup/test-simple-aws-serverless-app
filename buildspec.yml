@@ -12,7 +12,7 @@ phases:
   post_build:
     commands:
       - aws s3 sync ./out s3://demo-todo-list/ --delete
-      - aws cloudfront create-invalidation --distribution-id d1nhsbe5d1ywz3.cloudfront.net --paths "/*"
+      - aws cloudfront create-invalidation --distribution-id E1KUL9GTC88I6D --paths "/*"
 artifacts:
   files:
     - '**/*'
