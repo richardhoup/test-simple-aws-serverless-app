@@ -14,6 +14,7 @@ phases:
       - aws s3 sync ./out s3://demo-todo-list/ --delete
       - aws cloudfront create-invalidation --distribution-id E1KUL9GTC88I6D --paths "/*"
 artifacts:
+  base-directory: ./out
   files:
     - '**/*'
   discard-paths: no
