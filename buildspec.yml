@@ -11,8 +11,8 @@ phases:
       - npm run build
   post_build:
     commands:
-      - aws s3 sync ./out s3://todo-list-20250630/ --delete
-      - aws cloudfront create-invalidation --distribution-id E11IIR4KRO36H9 --paths "/*"
+      - aws s3 sync ./out s3://demo-todo-list/ --delete
+      - aws cloudfront create-invalidation --distribution-id E1KUL9GTC88I6D --paths "/*"
 artifacts:
   base-directory: ./out
   files:
