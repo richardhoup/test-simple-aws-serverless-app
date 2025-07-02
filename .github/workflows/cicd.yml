@@ -38,13 +38,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: print ${{ secrets.AWS_ROLE_ARN }}
       # Configure AWS credentials using OIDC - NO ACCESS KEYS NEEDED!
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          
+      # Debug step to verify OIDC token and AWS access
+      - name: Debug AWS credentials
+        run: |
+          echo "AWS_REGION: $AWS_DEFAULT_REGION"
+          echo "Current AWS identity:"
+          aws sts get-caller-identity
+          echo "Available environment variables:"
+          env | grep AWS | head -10
           
       - name: Get application secrets from AWS Secrets Manager
         run: |
