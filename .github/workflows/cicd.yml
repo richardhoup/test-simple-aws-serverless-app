@@ -45,13 +45,12 @@ jobs:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           
-      - name: Get application secrets from AWS Secrets Manager
+      - name: Get application configuration from AWS Secrets Manager
         run: |
-          # Retrieve application secrets and export as environment variables
+          # Retrieve application configuration (NOT credentials - OIDC handles auth)
           SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id "${{ secrets.SECRET_NAME }}" --query SecretString --output text)
           
-          echo "AWS_ACCESS_KEY_ID=$(echo $SECRET_JSON | jq -r '.AWS_ACCESS_KEY_ID')" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=$(echo $SECRET_JSON | jq -r '.AWS_SECRET_ACCESS_KEY')" >> $GITHUB_ENV
+          # Only set non-credential environment variables
           echo "AWS_BUCKET_NAME=$(echo $SECRET_JSON | jq -r '.AWS_BUCKET_NAME')" >> $GITHUB_ENV
           echo "AWS_CLOUDFRONT_DISTRIBUTION_ID=$(echo $SECRET_JSON | jq -r '.AWS_CLOUDFRONT_DISTRIBUTION_ID')" >> $GITHUB_ENV
           
