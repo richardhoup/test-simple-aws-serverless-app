@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - deploy/gitops
+
+# Add permissions for OIDC token
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   install:
     runs-on: ubuntu-latest
