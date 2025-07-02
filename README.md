@@ -1,24 +1,95 @@
-## AWS Amplify Next.js (App Router) Starter Template
+# Next.js Application
 
-This repository provides a starter template for creating applications using Next.js (App Router) and AWS Amplify, emphasizing easy setup for authentication, API, and database capabilities.
+This repository provides a Next.js application with modern React features and Tailwind CSS styling.
 
-## Overview
+## Architecture
 
-This template equips you with a foundational Next.js application integrated with AWS Amplify, streamlined for scalability and performance. It is ideal for developers looking to jumpstart their project with pre-configured AWS services like Cognito, AppSync, and DynamoDB.
+- **Frontend**: Next.js with static export capability
+- **Styling**: Tailwind CSS with custom components
+- **UI Components**: Radix UI primitives
+- **Icons**: Lucide React icons
 
 ## Features
 
-- **Authentication**: Setup with Amazon Cognito for secure user authentication.
-- **API**: Ready-to-use GraphQL endpoint with AWS AppSync.
-- **Database**: Real-time database powered by Amazon DynamoDB.
+- **Static Site Generation**: Optimized Next.js build
+- **Modern UI**: Tailwind CSS with component library
+- **Dark/Light Theme**: Theme switching support
+- **TypeScript**: Full TypeScript support
+- **Component Library**: Reusable UI components
 
-## Deploying to AWS
+## Quick Start
 
-For detailed instructions on deploying your application, refer to the [deployment section](https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/#deploy-a-fullstack-app-to-aws) of our documentation.
+### 1. Install Dependencies
 
-## Security
+```bash
+npm install
+```
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+### 2. Start Development Server
+
+```bash
+npm run dev
+```
+
+### 3. Build for Production
+
+```bash
+npm run build
+```
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run linting
+npm run lint
+```
+
+## Project Structure
+
+```
+├── app/                    # Next.js app directory
+├── components/             # React components
+├── lib/                    # Utility functions
+├── hooks/                  # Custom React hooks
+├── public/                 # Static assets
+└── package.json
+```
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
+
+## Technologies Used
+
+- **Next.js 15** - React framework
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first CSS
+- **Radix UI** - Accessible component primitives
+- **Lucide React** - Icon library
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test your changes locally
+5. Submit a pull request
 
 ## License
 
