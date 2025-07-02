@@ -38,6 +38,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
+      # Debug OIDC token claims
+      - name: Debug OIDC token claims
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Ref: $GITHUB_REF"
+          echo "SHA: $GITHUB_SHA"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Run ID: $GITHUB_RUN_ID"
+          echo "Run Number: $GITHUB_RUN_NUMBER"
+          echo "Job: $GITHUB_JOB"
+          echo "Workflow: $GITHUB_WORKFLOW"
+          echo "Event Name: $GITHUB_EVENT_NAME"
+          
       # Configure AWS credentials using OIDC - NO ACCESS KEYS NEEDED!
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
