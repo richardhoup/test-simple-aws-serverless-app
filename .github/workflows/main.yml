@@ -13,18 +13,18 @@ jobs:
         with:
           node-version: 22.17.0	
       - run: npm ci
-build:
-  needs: install
-  runs-on: ubuntu-latest
-  strategy:
-    matrix:
-      node-version: [22.17.0]
-  steps:
-      - uses: actions/checkout@v3
-      - name: Use node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build
+  build:
+    needs: install
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.17.0]
+    steps:
+        - uses: actions/checkout@v3
+        - name: Use node ${{ matrix.node-version }}
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.node-version }}
+        - run: npm ci
+        - run: npm run build
 
