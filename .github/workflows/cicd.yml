@@ -48,6 +48,7 @@ jobs:
           
       - name: Get application secrets from AWS Secrets Manager
         run: |
+          aws region us-east-1
           # Retrieve application secrets and export as environment variables
           SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id "${{ secrets.SECRET_NAME }}" --query SecretString --output text)
           
