@@ -27,4 +27,23 @@ jobs:
             node-version: ${{ matrix.node-version }}
         - run: npm ci
         - run: npm run build
-
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          python-version: 3.12
+      - name: Config AWS Cred
+        run: |
+          pip install awscli
+          aws configure set region us-east-1
+          aws configure set output json
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Deploy with S3 sync and Invalidate CloudFront cache
+        run: |
+          npm ci
+          npm run build
+          aws s3 sync ./out s3://${{ secrets.AWS_BUCKET_NAME }}/
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
