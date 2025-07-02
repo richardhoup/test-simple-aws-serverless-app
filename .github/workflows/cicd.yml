@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - deploy/gitops
+
+# Add permissions for OIDC token
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   install:
     runs-on: ubuntu-latest
@@ -32,25 +38,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
+      # Configure AWS credentials using OIDC - NO ACCESS KEYS NEEDED!
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          python-version: 3.12
-      - name: Get secrets from AWS Secrets Manager
-        run: |
-          # Retrieve secrets and export as environment variables
-          SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id "gitops-deploy-secret" --query SecretString --output text)
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
           
-          # Parse JSON and export individual secrets
+      - name: Get application secrets from AWS Secrets Manager
+        run: |
+          # Retrieve application secrets and export as environment variables
+          SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id "${{ secrets.SECRET_NAME }}" --query SecretString --output text)
+          
+          # Parse JSON and export individual application secrets
           echo "AWS_ACCESS_KEY_ID=$(echo $SECRET_JSON | jq -r '.AWS_ACCESS_KEY_ID')" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$(echo $SECRET_JSON | jq -r '.AWS_SECRET_ACCESS_KEY')" >> $GITHUB_ENV
           echo "AWS_BUCKET_NAME=$(echo $SECRET_JSON | jq -r '.AWS_BUCKET_NAME')" >> $GITHUB_ENV
-          echo "AWS_CLOUDFRONT_DISTRIBUTION_ID=$(echo $SECRET_JSON | jq -r '.AWS_CLOUDFRONT_DISTRIBUTION_ID')" >> $GITHUB_ENV     
-      - name: Config AWS Cred
-        run: |
-          pip install awscli
-          aws configure set region us-east-1
-          aws configure set output json
-          aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }}
+          echo "AWS_CLOUDFRONT_DISTRIBUTION_ID=$(echo $SECRET_JSON | jq -r '.AWS_CLOUDFRONT_DISTRIBUTION_ID')" >> $GITHUB_ENV
+          
+          # If you need any other application secrets, add them here:
+          # echo "OTHER_SECRET=$(echo $SECRET_JSON | jq -r '.other_secret')" >> $GITHUB_ENV
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.17.0
+          
       - name: Deploy with S3 sync and Invalidate CloudFront cache
         run: |
           npm ci
