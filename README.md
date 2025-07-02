@@ -22,7 +22,7 @@ This repository provides a Next.js application with modern React features and Ta
 ### 1. Install Dependencies
 
 ```bash
-npm install
+npm install 
 ```
 
 ### 2. Start Development Server
